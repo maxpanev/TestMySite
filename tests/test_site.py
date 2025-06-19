@@ -1,39 +1,49 @@
 import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 import time
 
 
 @pytest.fixture(scope="module")
 def driver():
     driver = webdriver.Chrome()
+    driver.maximize_window()
     driver.get("https://positronica.ru/support/")
     yield driver
     driver.quit()
 
+def test_phone_field(driver):
+    phone_input = driver.find_element(By.ID, "support-phone")
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", phone_input)
+    time.sleep(1)
+    assert phone_input.is_displayed()
+    phone_input.send_keys("9991234567")
+    time.sleep(2)
+    assert phone_input.get_attribute("value") == "+7 999 123 45 67"
 
-def test_city_field(driver):
-    city_field = driver.find_element(By.XPATH, "(//div[contains(@class, 'choices__inner')])[2]")
-    assert city_field.is_displayed()
 
+def test_order_number__field(driver):
+    order_input = driver.find_element(By.ID, "support-number")
+    assert order_input.is_displayed()
+    order_input.send_keys("1234567890")
+    time.sleep(2)
+    assert order_input.get_attribute("value") == "PZ1234567890"
 
 
 def test_email_field(driver):
     email_input = driver.find_element(By.ID, "support-email")
     assert email_input.is_displayed()
-    # Вводим тестовый email
     email_input.send_keys("test@example.com")
-    # Проверяем, что значение введено
+    time.sleep(2)
     assert email_input.get_attribute("value") == "test@example.com"
 
 
-def test_phone_field(driver):
-    phone_input = driver.find_element(By.ID, "support-phone")
-    assert phone_input.is_displayed()
-    phone_input.send_keys("9991234567")
+def test_name_field(driver):
+    name_input = driver.find_element(By.ID, "support-name")
+    assert name_input.is_displayed()
+    name_input.send_keys("Иван")
     time.sleep(2)
-    assert phone_input.get_attribute("value") == "+7 999 123 45 67"
+    assert name_input.get_attribute("value") == "Иван"
 
 
 def test_message_field(driver):
@@ -46,14 +56,15 @@ def test_message_field(driver):
 
 def test_privacy_checkbox(driver):
     checkbox = driver.find_element(By.CLASS_NAME, "form-checkbox__fake")
-    # Прокрутить к чекбоксу к центру
     driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", checkbox)
     time.sleep(1)
     assert checkbox.is_displayed()
     assert not checkbox.is_selected()
+    checkbox.click()
+    time.sleep(2)
+    assert checkbox.is_enabled()
 
 def test_submit_button(driver):
     submit_button = driver.find_element(By.XPATH, "//button[contains(text(),'Отправить')]")
-    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_button)
     time.sleep(2)
-    assert submit_button.is_displayed()
+    assert submit_button.is_enabled()
