@@ -1,61 +1,39 @@
 import requests
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 import pytest
-import time
+from bs4 import BeautifulSoup
 
-url = "https://positronica.ru"
+base_url = "https://positronica.ru/support/"
 
-# Тест 1: Проверка статуса ответа сайта
-def test_status_code():
-    response = requests.get(url)
-    assert response.status_code == 200, f"Страница {url} недоступна, статус {response.status_code}"
-
-### 2. Проверка наличия определенного элемента на странице с помощью BeautifulSoup
-def test_element_present():
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    # Проверяем, есть ли заголовок h1 на странице
-    assert soup.find('h1') is not None, "На странице нет элемента <h1>"
-
-### 3. Проверка наличия ссылки на странице с помощью request
-def test_link_exists():
-    response = requests.get(url)
-    assert 'href="/actions/"' in response.text, "Ссылка не найдена на странице"
-
-### 4. Проверка наличия ссылки на странице с помощью селектора XPath
-def test_link_XPath():
-    browser = webdriver.Chrome()
-    browser.get(url)
-    element = browser.find_element(By.XPATH, '(//a[contains(@class, "menu__link") and @href="/actions/"])[2]')
-    assert element is not None, 'Элемент не найден на странице'
-
-
-### 5. Проверка, что кнопка или элемент доступен для клика с помощью Selenium
-
+# Добавляем фикстуру `response`, которая делает один запрос и передается во все тесты
 @pytest.fixture
-def driver():
-    driver = webdriver.Chrome()
-    yield driver
-    driver.quit()
+def response():
+    return requests.get(base_url)
 
-def test_element_clickable(driver):
-    driver.get(url)
-    button = driver.find_element(By.CSS_SELECTOR, 'a[href="/catalog/noutbuki-i-kompyutery/"]')
-    assert button.is_enabled(), "Элемент недоступен для клика"
+# Тест 1: Проверка статуса ответа страницы
+def test_status_code(response):
+    assert response.status_code == 200, f"Страница {base_url} недоступна, статус {response.status_code}"
 
-### 6. Проверка, что на странице есть товары, обработка исключений
-def test_noutbuki_list_page():
+# Тест 2: Проверка наличия элемента заголовка h1 на странице
+def test_h1_element_present(response):
+    soup = BeautifulSoup(response.text, 'html.parser')
+    h1 = soup.find('h1')
+    assert h1 is not None, "Элемент <h1> не найден на странице"
+    header_text = h1.get_text(strip=True)
+    assert header_text in ["Поддержка", "Support"], "Заголовок <h1> не совпадает с ожидаемыми вариантами"
 
-    url = "https://positronica.ru/catalog/noutbuki/"
-    browser = webdriver.Chrome()
-    try:
-        browser.get(url)
-        time.sleep(3)
-        products = browser.find_elements(By.XPATH, '//*[@class="catalog__item"]')
-        assert len(products) > 0
-    except AssertionError:
-        print("На странице не найдены товары")
-    finally:
-        browser.quit()
+# Тест 3: Проверка наличия конкретной ссылки на странице
+def test_support_page_contains_contact_link(response):
+    assert 'href="/kontakty/"' in response.text, "Ссылка на страницу контактов не найдена"
+
+# Тест 4: Проверка, что изображение существует
+def test_image_exists(response):
+    soup = BeautifulSoup(response.text, 'html.parser')
+    img = soup.find('img', title='Поддержка')
+    assert img is not None, "Изображение с title='Поддержка' не найдено"
+
+# Тест 5: Проверка, что есть телефон поддержки
+def test_support_phone_exists(response):
+    soup = BeautifulSoup(response.text, 'html.parser')
+    support_texts = soup.find_all(text=True)
+    phone_found = any('телефон' in text.lower() or '+' in text for text in support_texts)
+    assert phone_found, "Информация о телефоне поддержки не найдена на странице"
