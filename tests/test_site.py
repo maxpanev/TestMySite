@@ -1,39 +1,59 @@
-import requests
 import pytest
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+import time
 
-base_url = "https://positronica.ru/support/"
 
-# Добавляем фикстуру `response`, которая делает один запрос и передается во все тесты
-@pytest.fixture
-def response():
-    return requests.get(base_url)
+@pytest.fixture(scope="module")
+def driver():
+    driver = webdriver.Chrome()
+    driver.get("https://positronica.ru/support/")
+    yield driver
+    driver.quit()
 
-# Тест 1: Проверка статуса ответа страницы
-def test_status_code(response):
-    assert response.status_code == 200, f"Страница {base_url} недоступна, статус {response.status_code}"
 
-# Тест 2: Проверка наличия элемента заголовка h1 на странице
-def test_h1_element_present(response):
-    soup = BeautifulSoup(response.text, 'html.parser')
-    h1 = soup.find('h1')
-    assert h1 is not None, "Элемент <h1> не найден на странице"
-    header_text = h1.get_text(strip=True)
-    assert header_text in ["Поддержка", "Support"], "Заголовок <h1> не совпадает с ожидаемыми вариантами"
+def test_city_field(driver):
+    city_field = driver.find_element(By.XPATH, "(//div[contains(@class, 'choices__inner')])[2]")
+    assert city_field.is_displayed()
 
-# Тест 3: Проверка наличия конкретной ссылки на странице
-def test_support_page_contains_contact_link(response):
-    assert 'href="/kontakty/"' in response.text, "Ссылка на страницу контактов не найдена"
 
-# Тест 4: Проверка, что изображение существует
-def test_image_exists(response):
-    soup = BeautifulSoup(response.text, 'html.parser')
-    img = soup.find('img', title='Поддержка')
-    assert img is not None, "Изображение с title='Поддержка' не найдено"
 
-# Тест 5: Проверка, что есть телефон поддержки
-def test_support_phone_exists(response):
-    soup = BeautifulSoup(response.text, 'html.parser')
-    support_texts = soup.find_all(text=True)
-    phone_found = any('телефон' in text.lower() or '+' in text for text in support_texts)
-    assert phone_found, "Информация о телефоне поддержки не найдена на странице"
+def test_email_field(driver):
+    email_input = driver.find_element(By.ID, "support-email")
+    assert email_input.is_displayed()
+    # Вводим тестовый email
+    email_input.send_keys("test@example.com")
+    # Проверяем, что значение введено
+    assert email_input.get_attribute("value") == "test@example.com"
+
+
+def test_phone_field(driver):
+    phone_input = driver.find_element(By.ID, "support-phone")
+    assert phone_input.is_displayed()
+    phone_input.send_keys("9991234567")
+    time.sleep(2)
+    assert phone_input.get_attribute("value") == "+7 999 123 45 67"
+
+
+def test_message_field(driver):
+    message_textarea = driver.find_element(By.ID, "support-text")
+    assert message_textarea.is_displayed()
+    message_textarea.send_keys("Это тестовое сообщение.")
+    time.sleep(2)
+    assert message_textarea.get_attribute("value") == "Это тестовое сообщение."
+
+
+def test_privacy_checkbox(driver):
+    checkbox = driver.find_element(By.CLASS_NAME, "form-checkbox__fake")
+    # Прокрутить к чекбоксу к центру
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", checkbox)
+    time.sleep(1)
+    assert checkbox.is_displayed()
+    assert not checkbox.is_selected()
+
+def test_submit_button(driver):
+    submit_button = driver.find_element(By.XPATH, "//button[contains(text(),'Отправить')]")
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_button)
+    time.sleep(2)
+    assert submit_button.is_displayed()
