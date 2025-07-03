@@ -10,18 +10,21 @@ import time
 
 @pytest.fixture(scope="module")
 def driver():
+    # Инициализация веб-драйвера Chrome для всей тестовой сессии модуля
     driver = webdriver.Chrome()
     driver.maximize_window()
-    driver.get("https://positronica.ru/support/")
+    driver.get("https://positronica.ru/support/")  # Открытие стартовой страницы
     yield driver
-    driver.quit()
+    driver.quit()  # Закрытие браузера после завершения тестов модуля
 
 @pytest.fixture(scope="function")
 def wait(driver):
+    # Создание объекта ожидания для использования в отдельных тестах
     return WebDriverWait(driver, 10)
 
 @pytest.fixture(autouse=True)
 def close_popup(wait):
+    # Автоматическое закрытие всплывающих окон перед каждым тестом, если они есть
     try:
         close_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Закрыть')]")))
         close_btn.click()
@@ -66,8 +69,9 @@ class TestFormSubmission:
 # ТЕСТ-КЕЙСЫ с положительнами значениями
 class TestValidInputs:
     # ТЕСТ-КЕЙС №3
-    @pytest.mark.parametrize("value_1, value_2", valid_emails)
+    @pytest.mark.parametrize("value_1, value_2", valid_emails) # Импорт переменной valid_emails из каталога helpers
     def test_valid_email(self, driver, wait, value_1, value_2):
+        # Импорт функции fill_field из каталога helpers
         fill_field(driver, wait, "support-email", value_1, value_2)
         # После заполнения поля проверяем значение
         element = wait.until(EC.visibility_of_element_located((By.ID, "support-email")))
@@ -75,8 +79,9 @@ class TestValidInputs:
         assert current_value == value_2, f"Ожидалось значение: '{value_2}', но получили: '{current_value}'"
 
     # ТЕСТ-КЕЙС №4
-    @pytest.mark.parametrize("value_1, value_2", valid_phone_numbers)
+    @pytest.mark.parametrize("value_1, value_2", valid_phone_numbers) # Импорт переменной valid_phone_numbers из каталога helpers
     def test_valid_phone(self, driver, wait, value_1, value_2):
+        # Импорт функции fill_field из каталога helpers
         fill_field(driver, wait, "support-phone", value_1, value_2)
         # После заполнения поля проверяем значение
         element = wait.until(EC.visibility_of_element_located((By.ID, "support-phone")))
@@ -84,8 +89,9 @@ class TestValidInputs:
         assert current_value == value_2, f"Ожидалось значение: '{value_2}', но получили: '{current_value}'"
 
     # ТЕСТ-КЕЙС №5
-    @pytest.mark.parametrize("value_1, value_2", valid_names)
+    @pytest.mark.parametrize("value_1, value_2", valid_names) # Импорт переменной valid_names из каталога helpers
     def test_valid_names(self, driver, wait, value_1, value_2):
+        # Импорт функции fill_field из каталога helpers
         fill_field(driver, wait, "support-name", value_1, value_2)
         # После заполнения поля проверяем значение
         element = wait.until(EC.visibility_of_element_located((By.ID, "support-name")))
@@ -93,8 +99,9 @@ class TestValidInputs:
         assert current_value == value_2, f"Ожидалось значение: '{value_2}', но получили: '{current_value}'"
 
     # ТЕСТ-КЕЙС №6
-    @pytest.mark.parametrize("value_1, value_2", valid_messages)
+    @pytest.mark.parametrize("value_1, value_2", valid_messages) # Импорт переменной valid_messages из каталога helpers
     def test_valid_messages(self, driver, wait, value_1, value_2):
+        # Импорт функции fill_field из каталога helpers
         fill_field(driver, wait, "support-text", value_1, value_2)
         # После заполнения поля проверяем значение
         element = wait.until(EC.visibility_of_element_located((By.ID, "support-text")))
@@ -104,8 +111,9 @@ class TestValidInputs:
 # ТЕСТ-КЕЙСЫ с отрицательнами значениями
 class TestInvalidInputs:
     # ТЕСТ-КЕЙС №3
-    @pytest.mark.parametrize("value, expected_error", invalid_emails)
+    @pytest.mark.parametrize("value, expected_error", invalid_emails) # Импорт переменной invalid_emails из каталога helpers
     def test_invalid_email(self, driver, wait, value, expected_error):
+        # Импорт функции fill_incorrect_field из каталога helpers
         fill_incorrect_field(driver, wait, "support-email", value)
         # Проверяем, что ошибка отображается правильно
         # error_element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "hf-warning")))
@@ -114,8 +122,9 @@ class TestInvalidInputs:
         assert error_element.text == expected_error, f"Текст ошибки не соответствует ожидаемому: {expected_error}"
 
     # ТЕСТ-КЕЙС №4
-    @pytest.mark.parametrize("value, expected_error", invalid_phone_numbers)
+    @pytest.mark.parametrize("value, expected_error", invalid_phone_numbers) # Импорт переменной invalid_phone_numbers из каталога helpers
     def test_invalid_phone(self, driver, wait, value, expected_error):
+        # Импорт функции fill_incorrect_field из каталога helpers
         fill_incorrect_field(driver, wait, "support-phone", value)
         # Проверяем, что ошибка отображается правильно
         # error_element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "hf-warning")))
@@ -124,8 +133,9 @@ class TestInvalidInputs:
         assert error_element.text == expected_error, f"Текст ошибки не соответствует ожидаемому: {expected_error}"
 
     # ТЕСТ-КЕЙС №5
-    @pytest.mark.parametrize("value, expected_error", invalid_names)
+    @pytest.mark.parametrize("value, expected_error", invalid_names) # Импорт переменной invalid_names из каталога helpers
     def test_invalid_names(self, driver, wait, value, expected_error):
+        # Импорт функции fill_incorrect_field из каталога helpers
         fill_incorrect_field(driver, wait, "support-name", value)
         # Находим все элементы с классом 'hf-warning'
         warning_elements = driver.find_elements(By.CLASS_NAME, 'hf-warning')
@@ -139,8 +149,9 @@ class TestInvalidInputs:
         assert error_found, f"Ошибка '{expected_error}' не найдена среди предупреждений."
 
     # ТЕСТ-КЕЙС №6
-    @pytest.mark.parametrize("value, expected_error", invalid_messages)
+    @pytest.mark.parametrize("value, expected_error", invalid_messages) # Импорт переменной invalid_messages из каталога helpers
     def test_invalid_messages(self, driver, wait, value, expected_error):
+        # Импорт функции fill_incorrect_field из каталога helpers
         fill_incorrect_field(driver, wait, "support-text", value)
         # Проверяем, что ошибка отображается правильно
         error_element = wait.until(EC.visibility_of_element_located((
@@ -154,6 +165,7 @@ class TestLinks:
         # Импорт функции find_link из каталога helpers
         find_link(driver, wait, ".button.button_small.button_border")
         assert driver.current_url == "https://positronica.ru/pretenzii-po-zakazam-s-markepleysov/", "Страница не соответствует ожидаемой"
+        # Импорт функции return_to_start из каталога helpers
         return_to_start(driver)
 
     # ТЕСТ-КЕЙС №7
@@ -161,6 +173,7 @@ class TestLinks:
         # Импорт функции find_link из каталога helpers
         find_link(driver, wait, ".logo__icon.logo__icon_logo.icon.icon_logo")
         assert driver.current_url == "https://positronica.ru/", "Страница не соответствует ожидаемой"
+        # Импорт функции return_to_start из каталога helpers
         return_to_start(driver)
 
     # ТЕСТ-КЕЙС №9
@@ -168,11 +181,12 @@ class TestLinks:
         # Импорт функции find_link из каталога helpers
         find_link(driver, wait, ".breadcrumbs__link")
         assert driver.current_url == "https://positronica.ru/", "Страница не соответствует ожидаемой"
+        # Импорт функции return_to_start из каталога helpers
         return_to_start(driver)
 
 class TestCheckbox:
     # ТЕСТ-КЕЙС №10
-    @pytest.mark.parametrize("checkbox_id", checkbox_ids)
+    @pytest.mark.parametrize("checkbox_id", checkbox_ids) # Импорт переменной checkbox_ids из каталога helpers
     def test_select_category_checkbox(self, driver, wait, checkbox_id):
-        # вызываем универсальную функцию для клика и проверки чекбокса
+        # Импорт функции lick_checkbox из каталога helpers
         click_checkbox(driver, wait, checkbox_id)
