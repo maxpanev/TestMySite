@@ -168,7 +168,7 @@ class TestLinks:
         # Импорт функции return_to_start из каталога helpers
         return_to_start(driver)
 
-    # ТЕСТ-КЕЙС №7
+    # ТЕСТ-КЕЙС №8
     def test_logo_link(self, driver, wait):
         # Импорт функции find_link из каталога helpers
         find_link(driver, wait, ".logo__icon.logo__icon_logo.icon.icon_logo")
