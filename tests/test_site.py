@@ -1,7 +1,8 @@
 import pytest
-from helpers.functions import fill_field, fill_incorrect_field, find_link, return_to_start, clear_field, click_checkbox
-from helpers.variables import (valid_emails, invalid_emails, valid_phone_numbers, invalid_phone_numbers,
-                               valid_names, invalid_names, valid_messages, invalid_messages, checkbox_ids)
+from tests.helpers.functions import (fill_field, fill_incorrect_field, open_dropdown, select_option_by_text,
+                                     find_link, return_to_start, clear_field, click_checkbox)
+from tests.data.variables import (valid_order_numbers, valid_emails, invalid_emails, valid_phone_numbers, invalid_phone_numbers,
+                                  valid_names, invalid_names, valid_messages, invalid_messages, checkbox_ids)
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -68,7 +69,34 @@ class TestFormSubmission:
 
 # ТЕСТ-КЕЙСЫ с положительнами значениями
 class TestValidInputs:
+
     # ТЕСТ-КЕЙС №3
+    @pytest.mark.parametrize("value_1, value_2", valid_order_numbers)  # Импорт переменной valid_phone_numbers из каталога helpers
+    def test_valid_order(self, driver, wait, value_1, value_2):
+        # Импорт функции fill_field из каталога helpers
+        fill_field(driver, wait, "support-number", value_1, value_2)
+        # После заполнения поля проверяем значение
+        element = wait.until(EC.visibility_of_element_located((By.ID, "support-number")))
+        current_value = element.get_attribute("value")
+        assert current_value == value_2, f"Ожидалось значение: '{value_2}', но получили: '{current_value}'"
+
+    # ТЕСТ-КЕЙС №4
+    def test_select_city(self, driver, wait):
+        dropdown = open_dropdown(wait, index=1)
+        select_option_by_text(wait, "Омск")
+        selected_text = dropdown.text
+        assert "Омск" in selected_text, f"Выбранный город: {selected_text} не совпадает с ожидаемым"
+
+    def test_input_city(self, driver, wait):
+        dropdown = open_dropdown(wait, index=1)
+        input_field = wait.until(EC.element_to_be_clickable((By.NAME, "search_terms")))
+        input_field.send_keys("Омск")
+        input_field.click()
+        select_option_by_text(wait, "г Омск, Омская обл")
+        selected_text = dropdown.text
+        assert "г Омск, Омская обл" in selected_text, f"Выбранный город: {selected_text} не совпадает с ожидаемым"
+
+    # ТЕСТ-КЕЙС №5
     @pytest.mark.parametrize("value_1, value_2", valid_emails) # Импорт переменной valid_emails из каталога helpers
     def test_valid_email(self, driver, wait, value_1, value_2):
         # Импорт функции fill_field из каталога helpers
@@ -78,7 +106,7 @@ class TestValidInputs:
         current_value = element.get_attribute("value")
         assert current_value == value_2, f"Ожидалось значение: '{value_2}', но получили: '{current_value}'"
 
-    # ТЕСТ-КЕЙС №4
+    # ТЕСТ-КЕЙС №6
     @pytest.mark.parametrize("value_1, value_2", valid_phone_numbers) # Импорт переменной valid_phone_numbers из каталога helpers
     def test_valid_phone(self, driver, wait, value_1, value_2):
         # Импорт функции fill_field из каталога helpers
@@ -88,7 +116,7 @@ class TestValidInputs:
         current_value = element.get_attribute("value")
         assert current_value == value_2, f"Ожидалось значение: '{value_2}', но получили: '{current_value}'"
 
-    # ТЕСТ-КЕЙС №5
+    # ТЕСТ-КЕЙС №7
     @pytest.mark.parametrize("value_1, value_2", valid_names) # Импорт переменной valid_names из каталога helpers
     def test_valid_names(self, driver, wait, value_1, value_2):
         # Импорт функции fill_field из каталога helpers
@@ -98,7 +126,7 @@ class TestValidInputs:
         current_value = element.get_attribute("value")
         assert current_value == value_2, f"Ожидалось значение: '{value_2}', но получили: '{current_value}'"
 
-    # ТЕСТ-КЕЙС №6
+    # ТЕСТ-КЕЙС №8
     @pytest.mark.parametrize("value_1, value_2", valid_messages) # Импорт переменной valid_messages из каталога helpers
     def test_valid_messages(self, driver, wait, value_1, value_2):
         # Импорт функции fill_field из каталога helpers
@@ -110,7 +138,7 @@ class TestValidInputs:
 
 # ТЕСТ-КЕЙСЫ с отрицательнами значениями
 class TestInvalidInputs:
-    # ТЕСТ-КЕЙС №3
+    # ТЕСТ-КЕЙС №5
     @pytest.mark.parametrize("value, expected_error", invalid_emails) # Импорт переменной invalid_emails из каталога helpers
     def test_invalid_email(self, driver, wait, value, expected_error):
         # Импорт функции fill_incorrect_field из каталога helpers
@@ -121,7 +149,7 @@ class TestInvalidInputs:
             By.XPATH, "//div[contains(@class, 'hf-warning') and text() = 'Неверный формат Email']")))
         assert error_element.text == expected_error, f"Текст ошибки не соответствует ожидаемому: {expected_error}"
 
-    # ТЕСТ-КЕЙС №4
+    # ТЕСТ-КЕЙС №6
     @pytest.mark.parametrize("value, expected_error", invalid_phone_numbers) # Импорт переменной invalid_phone_numbers из каталога helpers
     def test_invalid_phone(self, driver, wait, value, expected_error):
         # Импорт функции fill_incorrect_field из каталога helpers
@@ -132,7 +160,7 @@ class TestInvalidInputs:
             By.XPATH, "//div[contains(@class, 'hf-warning') and text() = 'Неверный формат телефона']")))
         assert error_element.text == expected_error, f"Текст ошибки не соответствует ожидаемому: {expected_error}"
 
-    # ТЕСТ-КЕЙС №5
+    # ТЕСТ-КЕЙС №7
     @pytest.mark.parametrize("value, expected_error", invalid_names) # Импорт переменной invalid_names из каталога helpers
     def test_invalid_names(self, driver, wait, value, expected_error):
         # Импорт функции fill_incorrect_field из каталога helpers
@@ -148,7 +176,7 @@ class TestInvalidInputs:
                 break
         assert error_found, f"Ошибка '{expected_error}' не найдена среди предупреждений."
 
-    # ТЕСТ-КЕЙС №6
+    # ТЕСТ-КЕЙС №8
     @pytest.mark.parametrize("value, expected_error", invalid_messages) # Импорт переменной invalid_messages из каталога helpers
     def test_invalid_messages(self, driver, wait, value, expected_error):
         # Импорт функции fill_incorrect_field из каталога helpers
@@ -160,7 +188,7 @@ class TestInvalidInputs:
         assert error_element.text == expected_error, f"Текст ошибки не соответствует ожидаемому: {expected_error}"
 
 class TestLinks:
-    # ТЕСТ-КЕЙС №7
+    # ТЕСТ-КЕЙС №9
     def test_marketplace_claims_link(self, driver, wait):
         # Импорт функции find_link из каталога helpers
         find_link(driver, wait, ".button.button_small.button_border")
@@ -168,7 +196,7 @@ class TestLinks:
         # Импорт функции return_to_start из каталога helpers
         return_to_start(driver)
 
-    # ТЕСТ-КЕЙС №8
+    # ТЕСТ-КЕЙС №10
     def test_logo_link(self, driver, wait):
         # Импорт функции find_link из каталога helpers
         find_link(driver, wait, ".logo__icon.logo__icon_logo.icon.icon_logo")
@@ -176,7 +204,7 @@ class TestLinks:
         # Импорт функции return_to_start из каталога helpers
         return_to_start(driver)
 
-    # ТЕСТ-КЕЙС №9
+    # ТЕСТ-КЕЙС №11
     def test_return_link(self, driver, wait):
         # Импорт функции find_link из каталога helpers
         find_link(driver, wait, ".breadcrumbs__link")
@@ -185,8 +213,11 @@ class TestLinks:
         return_to_start(driver)
 
 class TestCheckbox:
-    # ТЕСТ-КЕЙС №10
+    # ТЕСТ-КЕЙС №12
     @pytest.mark.parametrize("checkbox_id", checkbox_ids) # Импорт переменной checkbox_ids из каталога helpers
     def test_select_category_checkbox(self, driver, wait, checkbox_id):
         # Импорт функции lick_checkbox из каталога helpers
         click_checkbox(driver, wait, checkbox_id)
+        # повторно ищем чекбокс, чтобы избежать проблем со stale element
+        checkbox = wait.until(EC.element_to_be_clickable((By.ID, checkbox_id)))
+        assert checkbox.is_enabled(), f"Чекбокс {checkbox_id} стал неактивен после клика"
