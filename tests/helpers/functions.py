@@ -43,13 +43,20 @@ def select_option_by_text(wait, text):
     option.click()
     time.sleep(2)
 
-def click_checkbox(driver, wait, checkbox_id):
+def select_category(driver, wait, checkbox_id):
     checkbox = wait.until(EC.element_to_be_clickable((By.ID, checkbox_id)))
     driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", checkbox)
     checkbox.click()
 
+def click_checkbox(driver, wait):
+    checkbox = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "form-checkbox__fake")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", checkbox)
+    time.sleep(0.5)  # небольшая задержка
+    checkbox.click()
 
-def clear_field(driver, wait, field_id, value_1, value_2):
+
+
+def clear_field(driver, wait, field_id):
     # Ждем, пока элемент станет видимым
     element = wait.until(EC.visibility_of_element_located((By.ID, field_id)))
     driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
