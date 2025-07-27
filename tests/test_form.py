@@ -36,7 +36,7 @@ def close_popup(wait):
 class TestFormSubmission:
     # ТЕСТ-КЕЙС №1
     def test_full_form_submission(self, driver, wait):
-        # Заполняем все поля
+        # Импорт функции fill_field из каталога helpers
         for field_id, value_1, value_2 in vv.valid_fields:
             fill_field(driver, wait, field_id, value_1, value_2)
         # После заполнения всех полей - кликаем чекбокс
@@ -44,8 +44,7 @@ class TestFormSubmission:
         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", checkbox)
         time.sleep(0.5)
         checkbox.click()
-
-        # Проверяем, что кнопка активна
+        # Проверить, что кнопка активна
         submit_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Отправить')]")))
         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
         time.sleep(0.5)
@@ -54,6 +53,7 @@ class TestFormSubmission:
 
     # ТЕСТ-КЕЙС №2
     def test_empty_form_submission(self, driver, wait):
+        # Импорт функции clear_field из каталога helpers
         for field_id in empty_fields:
             clear_field(driver, wait, field_id)
         # Проверить, что кнопка неактивна
@@ -82,7 +82,7 @@ class TestFormSubmission:
 
 
 class TestLinks:
-    # ТЕСТ-КЕЙС №12
+    # ТЕСТ-КЕЙС №4
     def test_marketplace_claims_link(self, driver, wait):
         # Импорт функции find_link из каталога helpers
         find_link(driver, wait, ".button.button_small.button_border")
@@ -90,7 +90,7 @@ class TestLinks:
         # Импорт функции return_to_start из каталога helpers
         return_to_start(driver)
 
-    # ТЕСТ-КЕЙС №13
+    # ТЕСТ-КЕЙС №5
     def test_logo_link(self, driver, wait):
         # Импорт функции find_link из каталога helpers
         find_link(driver, wait, ".logo__icon.logo__icon_logo.icon.icon_logo")
@@ -98,7 +98,7 @@ class TestLinks:
         # Импорт функции return_to_start из каталога helpers
         return_to_start(driver)
 
-    # ТЕСТ-КЕЙС №14
+    # ТЕСТ-КЕЙС №6
     def test_return_link(self, driver, wait):
         # Импорт функции find_link из каталога helpers
         find_link(driver, wait, ".breadcrumbs__link")
@@ -108,10 +108,10 @@ class TestLinks:
 
 
 class TestCheckbox:
-    # ТЕСТ-КЕЙС №15
+    # ТЕСТ-КЕЙС №7
     @pytest.mark.parametrize("checkbox_id", checkbox_ids) # Импорт переменной checkbox_ids из каталога helpers
     def test_select_category_checkbox(self, driver, wait, checkbox_id):
-        # Импорт функции lick_checkbox из каталога helpers
+        # Импорт функции select_category из каталога helpers
         select_category(driver, wait, checkbox_id)
         # повторно ищем чекбокс, чтобы избежать проблем со stale element
         checkbox = wait.until(EC.element_to_be_clickable((By.ID, checkbox_id)))

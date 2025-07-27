@@ -44,7 +44,7 @@ def close_popup(wait, driver):
 # ТЕСТ-КЕЙСЫ с положительными значениями
 class TestValidInputs:
 
-    # ТЕСТ-КЕЙС №4
+    # ТЕСТ-КЕЙС №8
     @pytest.mark.parametrize("value_1, value_2", vv.valid_order_numbers)  # Импорт переменной valid_phone_numbers из каталога helpers
     def test_valid_order(self, driver, wait, value_1, value_2):
         # Импорт функции fill_field из каталога helpers
@@ -54,13 +54,14 @@ class TestValidInputs:
         current_value = element.get_attribute("value")
         assert current_value == value_2, f"Ожидалось значение: '{value_2}', но получили: '{current_value}'"
 
-    # ТЕСТ-КЕЙС №5
+    # ТЕСТ-КЕЙС №9
     def test_select_city(self, driver, wait):
         dropdown = open_dropdown(wait, index=1)
         select_option_by_text(wait, "Омск")
         selected_text = dropdown.text
         assert "Омск" in selected_text, f"Выбранный город: {selected_text} не совпадает с ожидаемым"
 
+    # ТЕСТ-КЕЙС №10
     def test_input_city(self, driver, wait):
         dropdown = open_dropdown(wait, index=1)
         input_field = wait.until(EC.element_to_be_clickable((By.NAME, "search_terms")))
@@ -70,7 +71,7 @@ class TestValidInputs:
         selected_text = dropdown.text
         assert "г Омск, Омская обл" in selected_text, f"Выбранный город: {selected_text} не совпадает с ожидаемым"
 
-    # ТЕСТ-КЕЙС №6
+    # ТЕСТ-КЕЙС №11
     @pytest.mark.parametrize("value_1, value_2", vv.valid_emails) # Импорт переменной valid_emails из каталога helpers
     def test_valid_email(self, driver, wait, value_1, value_2):
         # Импорт функции fill_field из каталога helpers
@@ -80,7 +81,7 @@ class TestValidInputs:
         current_value = element.get_attribute("value")
         assert current_value == value_2, f"Ожидалось значение: '{value_2}', но получили: '{current_value}'"
 
-    # ТЕСТ-КЕЙС №7
+    # ТЕСТ-КЕЙС №12
     @pytest.mark.parametrize("value_1, value_2", vv.valid_phone_numbers) # Импорт переменной valid_phone_numbers из каталога helpers
     def test_valid_phone(self, driver, wait, value_1, value_2):
         # Импорт функции fill_field из каталога helpers
@@ -90,7 +91,7 @@ class TestValidInputs:
         current_value = element.get_attribute("value")
         assert current_value == value_2, f"Ожидалось значение: '{value_2}', но получили: '{current_value}'"
 
-    # ТЕСТ-КЕЙС №8
+    # ТЕСТ-КЕЙС №13
     @pytest.mark.parametrize("value_1, value_2", vv.valid_names) # Импорт переменной valid_names из каталога helpers
     def test_valid_names(self, driver, wait, value_1, value_2):
         # Импорт функции fill_field из каталога helpers
@@ -100,7 +101,7 @@ class TestValidInputs:
         current_value = element.get_attribute("value")
         assert current_value == value_2, f"Ожидалось значение: '{value_2}', но получили: '{current_value}'"
 
-    # ТЕСТ-КЕЙС №9
+    # ТЕСТ-КЕЙС №14
     @pytest.mark.parametrize("value_1, value_2", vv.valid_messages) # Импорт переменной valid_messages из каталога helpers
     def test_valid_messages(self, driver, wait, value_1, value_2):
         # Импорт функции fill_field из каталога helpers
@@ -113,7 +114,7 @@ class TestValidInputs:
 
 # ТЕСТ-КЕЙСЫ с отрицательнами значениями
 class TestInvalidInputs:
-    # ТЕСТ-КЕЙС №6
+    # ТЕСТ-КЕЙС №15
     @pytest.mark.parametrize("value, expected_error", iv.invalid_emails) # Импорт переменной invalid_emails из каталога helpers
     def test_invalid_email(self, driver, wait, value, expected_error):
         # Импорт функции fill_incorrect_field из каталога helpers
@@ -122,7 +123,7 @@ class TestInvalidInputs:
             By.XPATH, "//div[contains(@class, 'hf-warning') and text() = 'Неверный формат Email']")))
         assert error_element.text == expected_error, f"Текст ошибки не соответствует ожидаемому: {expected_error}"
 
-    # ТЕСТ-КЕЙС №7
+    # ТЕСТ-КЕЙС №16
     @pytest.mark.parametrize("value, expected_error", iv.invalid_phone_numbers) # Импорт переменной invalid_phone_numbers из каталога helpers
     def test_invalid_phone(self, driver, wait, value, expected_error):
         # Импорт функции fill_incorrect_field из каталога helpers
@@ -133,7 +134,7 @@ class TestInvalidInputs:
             By.XPATH, "//div[contains(@class, 'hf-warning') and text() = 'Неверный формат телефона']")))
         assert error_element.text == expected_error, f"Текст ошибки не соответствует ожидаемому: {expected_error}"
 
-    # ТЕСТ-КЕЙС №8
+    # ТЕСТ-КЕЙС №17
     @pytest.mark.parametrize("value, expected_error", iv.invalid_names) # Импорт переменной invalid_names из каталога helpers
     def test_invalid_names(self, driver, wait, value, expected_error):
         # Импорт функции fill_incorrect_field из каталога helpers
@@ -149,7 +150,7 @@ class TestInvalidInputs:
                 break
         assert error_found, f"Ошибка '{expected_error}' не найдена среди предупреждений."
 
-    # ТЕСТ-КЕЙС №9
+    # ТЕСТ-КЕЙС №18
     @pytest.mark.parametrize("value, expected_error", iv.invalid_messages) # Импорт переменной invalid_messages из каталога helpers
     def test_invalid_messages(self, driver, wait, value, expected_error):
         # Импорт функции fill_incorrect_field из каталога helpers
@@ -163,7 +164,7 @@ class TestInvalidInputs:
 
 # ТЕСТ-КЕЙСЫ с пустыми значениями
 class TestEmptyFields:
-    # ТЕСТ-КЕЙС №10
+    # ТЕСТ-КЕЙС №19
     def test_empty_field_email(self, driver, wait):
         # Импорт функции fill_field из каталога helpers
         clear_field(driver, wait, "support-email")
@@ -181,6 +182,7 @@ class TestEmptyFields:
         error_element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "errortext")))
         assert error_element.text == 'Не заполнены следующие обязательные поля:\n  » "E-mail"', f"Текст ошибки не соответствует ожидаемому"
 
+    # ТЕСТ-КЕЙС №20
     def test_empty_field_phone(self, driver, wait):
         # Импорт функции fill_field из каталога helpers
         fill_field(driver, wait, "support-email", "ivanov@mail.ru", "ivanov@mail.ru")
@@ -196,6 +198,7 @@ class TestEmptyFields:
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()
 
+    # ТЕСТ-КЕЙС №21
     def test_empty_field_name(self, driver, wait):
         # БАГ ФОРМЫ! AssertionError! Сообщить разработчикам!
         # Импорт функции fill_field из каталога helpers
@@ -212,6 +215,7 @@ class TestEmptyFields:
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()
 
+    # ТЕСТ-КЕЙС №22
     def test_empty_field_text(self, driver, wait):
         # Импорт функции fill_field из каталога helpers
         fill_field(driver, wait, "support-email", "ivanov@mail.ru", "ivanov@mail.ru")
@@ -234,7 +238,7 @@ class TestEmptyFields:
 
 # ТЕСТ-КЕЙСЫ с некорректными значениями
 class TestIncorrectFields:
-    # ТЕСТ-КЕЙС №11
+    # ТЕСТ-КЕЙС №23
     def test_incorrect_field_email(self, driver, wait):
         # Импорт функции fill_field из каталога helpers
         fill_field(driver, wait, "support-email", "test@example.c", "test@example.c")
@@ -250,6 +254,7 @@ class TestIncorrectFields:
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()
 
+    # ТЕСТ-КЕЙС №24
     def test_incorrect_field_phone(self, driver, wait):
         # Импорт функции fill_field из каталога helpers
         fill_field(driver, wait, "support-email", "ivanov@mail.ru", "ivanov@mail.ru")
@@ -265,6 +270,7 @@ class TestIncorrectFields:
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()
 
+    # ТЕСТ-КЕЙС №25
     def test_incorrect_field_name(self, driver, wait):
         # БАГ ФОРМЫ! AssertionError! Сообщить разработчикам!
         # Импорт функции fill_field из каталога helpers
@@ -281,6 +287,7 @@ class TestIncorrectFields:
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()
 
+    # ТЕСТ-КЕЙС №26
     def test_incorrect_field_text(self, driver, wait):
         # БАГ ФОРМЫ! AssertionError! Сообщить разработчикам!
         # Импорт функции fill_field из каталога helpers
