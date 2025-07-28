@@ -1,6 +1,6 @@
 import pytest
 from helpers.functions import (fill_field, fill_incorrect_field, open_dropdown, select_option_by_text,
-                               clear_field, click_checkbox)
+                               clear_field, click_checkbox, click_button)
 from data.variables import (ValidVariables as vv, InvalidVariables as iv)
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -30,17 +30,6 @@ def refresh_page(driver):
     driver.refresh()
 
 
-@pytest.fixture(autouse=True)
-def close_popup(wait, driver):
-    # Автоматическое закрытие всплывающих окон перед каждым тестом, если они есть
-    try:
-        close_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Закрыть')]")))
-        close_btn.click()
-    except:
-        # Если окно уже закрыто или кнопка не найдена, ничего не делаем
-        pass
-
-
 # ТЕСТ-КЕЙСЫ с положительными значениями
 class TestValidInputs:
 
@@ -56,6 +45,7 @@ class TestValidInputs:
 
     # ТЕСТ-КЕЙС №9
     def test_select_city(self, driver, wait):
+        # Тестирует выбор города из выпадающего списка по тексту
         dropdown = open_dropdown(wait, index=1)
         select_option_by_text(wait, "Омск")
         selected_text = dropdown.text
@@ -63,6 +53,7 @@ class TestValidInputs:
 
     # ТЕСТ-КЕЙС №10
     def test_input_city(self, driver, wait):
+        # Тестирует ввод города в поле поиска и выбор из результатов
         dropdown = open_dropdown(wait, index=1)
         input_field = wait.until(EC.element_to_be_clickable((By.NAME, "search_terms")))
         input_field.send_keys("Омск")
@@ -129,7 +120,6 @@ class TestInvalidInputs:
         # Импорт функции fill_incorrect_field из каталога helpers
         fill_incorrect_field(driver, wait, "support-phone", value)
         # Проверяем, что ошибка отображается правильно
-        # error_element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "hf-warning")))
         error_element = wait.until(EC.visibility_of_element_located((
             By.XPATH, "//div[contains(@class, 'hf-warning') and text() = 'Неверный формат телефона']")))
         assert error_element.text == expected_error, f"Текст ошибки не соответствует ожидаемому: {expected_error}"
@@ -174,9 +164,7 @@ class TestEmptyFields:
         # Поставить галочку
         click_checkbox(driver, wait)
         # Проверить, что кнопка активна
-        submit_btn = wait.until(EC.visibility_of_element_located((By.XPATH, "//button[contains(text(),'Отправить')]")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
-        time.sleep(0.5)  # небольшая задержка, чтобы страница "подтянулась"
+        submit_btn = click_button(driver, wait)
         submit_btn.click()
         time.sleep(1)
         error_element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "errortext")))
@@ -192,9 +180,7 @@ class TestEmptyFields:
         # Поставить галочку
         click_checkbox(driver, wait)
         # Проверить, что кнопка активна
-        submit_btn = wait.until(EC.visibility_of_element_located((By.XPATH, "//button[contains(text(),'Отправить')]")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
-        time.sleep(0.5)  # небольшая задержка, чтобы страница "подтянулась"
+        submit_btn = click_button(driver, wait)
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()
 
@@ -209,9 +195,7 @@ class TestEmptyFields:
         # Поставить галочку
         click_checkbox(driver, wait)
         # Проверить, что кнопка активна
-        submit_btn = wait.until(EC.visibility_of_element_located((By.XPATH, "//button[contains(text(),'Отправить')]")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
-        time.sleep(0.5)  # небольшая задержка, чтобы страница "подтянулась"
+        submit_btn = click_button(driver, wait)
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()
 
@@ -225,15 +209,10 @@ class TestEmptyFields:
         # Поставить галочку
         click_checkbox(driver, wait)
         # Проверить, что кнопка активна
-        submit_btn = wait.until(EC.visibility_of_element_located((By.XPATH, "//button[contains(text(),'Отправить')]")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
-        time.sleep(0.5)  # небольшая задержка, чтобы страница "подтянулась"
+        submit_btn = click_button(driver, wait)
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()
-        checkbox = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "form-checkbox__fake")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", checkbox)
-        time.sleep(0.5)  # небольшая задержка
-        checkbox.click()
+        click_checkbox(driver, wait)
 
 
 # ТЕСТ-КЕЙСЫ с некорректными значениями
@@ -248,9 +227,7 @@ class TestIncorrectFields:
         # Поставить галочку
         click_checkbox(driver, wait)
         # Проверить, что кнопка активна
-        submit_btn = wait.until(EC.visibility_of_element_located((By.XPATH, "//button[contains(text(),'Отправить')]")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
-        time.sleep(0.5)  # небольшая задержка, чтобы страница "подтянулась"
+        submit_btn = click_button(driver, wait)
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()
 
@@ -264,9 +241,7 @@ class TestIncorrectFields:
         # Поставить галочку
         click_checkbox(driver, wait)
         # Проверить, что кнопка активна
-        submit_btn = wait.until(EC.visibility_of_element_located((By.XPATH, "//button[contains(text(),'Отправить')]")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
-        time.sleep(0.5)  # небольшая задержка, чтобы страница "подтянулась"
+        submit_btn = click_button(driver, wait)
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()
 
@@ -281,9 +256,7 @@ class TestIncorrectFields:
         # Поставить галочку
         click_checkbox(driver, wait)
         # Проверить, что кнопка активна
-        submit_btn = wait.until(EC.visibility_of_element_located((By.XPATH, "//button[contains(text(),'Отправить')]")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
-        time.sleep(0.5)  # небольшая задержка, чтобы страница "подтянулась"
+        submit_btn = click_button(driver, wait)
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()
 
@@ -298,8 +271,6 @@ class TestIncorrectFields:
         # Поставить галочку
         click_checkbox(driver, wait)
         # Проверить, что кнопка активна
-        submit_btn = wait.until(EC.visibility_of_element_located((By.XPATH, "//button[contains(text(),'Отправить')]")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
-        time.sleep(0.5)  # небольшая задержка, чтобы страница "подтянулась"
+        submit_btn = click_button(driver, wait)
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()

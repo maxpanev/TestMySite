@@ -1,6 +1,6 @@
 import pytest
-from helpers.functions import (fill_field, fill_incorrect_field, open_dropdown, select_option_by_text,
-                                     find_link, return_to_start, clear_field, select_category)
+from helpers.functions import (fill_field, find_link, return_to_start, clear_field, select_category,
+                               click_checkbox, click_button)
 from data.variables import (ValidVariables as vv, InvalidVariables as iv, empty_fields, checkbox_ids)
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -40,14 +40,9 @@ class TestFormSubmission:
         for field_id, value_1, value_2 in vv.valid_fields:
             fill_field(driver, wait, field_id, value_1, value_2)
         # После заполнения всех полей - кликаем чекбокс
-        checkbox = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "form-checkbox__fake")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", checkbox)
-        time.sleep(0.5)
-        checkbox.click()
+        click_checkbox(driver, wait)
         # Проверить, что кнопка активна
-        submit_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Отправить')]")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
-        time.sleep(0.5)
+        submit_btn = click_button(driver, wait)
         assert submit_btn.is_displayed()
         assert submit_btn.is_enabled()
 
@@ -56,10 +51,10 @@ class TestFormSubmission:
         # Импорт функции clear_field из каталога helpers
         for field_id in empty_fields:
             clear_field(driver, wait, field_id)
+        # Поставить галочку
+        click_checkbox(driver, wait)
         # Проверить, что кнопка неактивна
-        submit_btn = wait.until(EC.visibility_of_element_located((By.XPATH, "//button[contains(text(),'Отправить')]")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
-        time.sleep(0.5)  # небольшая задержка, чтобы страница "подтянулась"
+        submit_btn = click_button(driver, wait)
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()
 
@@ -69,14 +64,9 @@ class TestFormSubmission:
         for field_id, value_1, value_2 in iv.invalid_fields:
             fill_field(driver, wait, field_id, value_1, value_2)
         # Поставить галочку
-        checkbox = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "form-checkbox__fake")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", checkbox)
-        time.sleep(0.5)  # небольшая задержка
-        checkbox.click()
+        click_checkbox(driver, wait)
         # Проверить, что кнопка неактивна
-        submit_btn = wait.until(EC.visibility_of_element_located((By.XPATH, "//button[contains(text(),'Отправить')]")))
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
-        time.sleep(0.5)  # небольшая задержка, чтобы страница "подтянулась"
+        submit_btn = click_button(driver, wait)
         assert submit_btn.is_displayed()
         assert not submit_btn.is_enabled()
 
